@@ -1,0 +1,14 @@
+{
+  "tasks": {
+    "dev": "echo \"deno run --watch main.ts\"",
+    "format": "deno fmt",
+    "lint": "deno lint",
+    "executer": "deno --no-lock -A"
+  },
+  "imports": {},
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true
+  }
+}

@@ -1,0 +1,50 @@
+name: Chrome extension upload
+description: Uploads a Chrome extension to the Chrome Web Store.
+author: pHo9UBenaA
+
+inputs:
+  client-id:
+    description: Your Google Cloud Platform OAuth 2.0 client ID.
+    required: true
+    type: string
+  client-secret:
+    description: Your Google Cloud Platform OAuth 2.0 client secret.
+    required: true
+    type: string
+  refresh-token:
+    description: Your Google Cloud Platform OAuth 2.0 refresh token.
+    required: true
+    type: string
+  extension-id:
+    description: The ID of your Chrome extension.
+    required: true
+    type: string
+  file-path:
+    description: The path to your Chrome extension zip file.
+    required: true
+    type: string
+  publish:
+    description: Whether to publish the extension immediately.
+    required: false
+    default: false
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Deno
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v2
+
+    - name: Run Deno Script
+      run: |
+        deno run -A ${{ github.action_path }}/src/index.ts
+      env:
+        CLIENT_ID: ${{ inputs.client-id }}
+        CLIENT_SECRET: ${{ inputs.client-secret }}
+        REFRESH_TOKEN: ${{ inputs.refresh-token }}
+        EXTENSION_ID: ${{ inputs.extension-id }}
+        FILE_PATH: ${{ inputs.file-path }}
+        PUBLISH: ${{ inputs.publish }}
+      shell: bash

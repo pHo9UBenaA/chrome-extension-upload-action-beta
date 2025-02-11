@@ -1,39 +1,42 @@
-import { GaxiosError, request } from "npm:gaxios";
-import { WebStoreError } from "./errors.ts";
-import type { AccessTokenResponse, PublishResponse } from "./interfaces.ts";
+import { GaxiosOptions, request } from "npm:gaxios";
+
+import type { PublishResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";
+import { WebStoreError } from "./error.ts";
+
+const publishURI = (extensionId: ExtensionId) => {
+  return `https://www.googleapis.com/chromewebstore/v1.1/items/${extensionId}/publish`;
+};
+
+const buildOptions = (
+  accessToken: string,
+  extensionId: ExtensionId,
+): GaxiosOptions => {
+  return {
+    url: publishURI(extensionId),
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "x-goog-api-version": "2",
+      "Content-Length": "0",
+    },
+  };
+};
 
 export const publish = async (
-  accessToken: AccessTokenResponse,
+  accessToken: string,
   extensionId: ExtensionId,
 ): Promise<void> => {
-  try {
-    const response = await request<PublishResponse>({
-      url:
-        `https://www.googleapis.com/chromewebstore/v1.1/items/${extensionId}/publish`,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "x-goog-api-version": "2",
-        "Content-Length": "0",
-      },
-    });
+  const options = buildOptions(accessToken, extensionId);
+  const response = await request<PublishResponse>(options);
 
-    if (!response.data.status.includes("OK")) {
-      throw new WebStoreError(
-        "Failed to publish item",
-        response.status,
-        response.data,
-      );
-    }
-  } catch (error) {
-    if (error instanceof GaxiosError) {
-      throw new WebStoreError(
-        "Failed to publish item",
-        error.response?.status || 500,
-        error.response?.data,
-      );
-    }
-    throw error;
+  if (response.data.status.includes("OK")) {
+    return;
   }
+
+  throw new WebStoreError(
+    "Failed to publish item",
+    response.status,
+    response.data,
+  );
 };

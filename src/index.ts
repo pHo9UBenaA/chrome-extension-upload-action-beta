@@ -1,86 +1,58 @@
 import "jsr:@std/dotenv/load";
 import * as core from "npm:@actions/core";
-import { getAccessToken } from "./auth.ts";
-import { WebStoreError } from "./errors.ts";
-import type { AccessTokenRequestBody } from "./interfaces.ts";
+
+import { requestAccessToken } from "./auth.ts";
 import { publish } from "./publish.ts";
 import type { ExtensionId } from "./types.ts";
 import { uploadPackage } from "./upload.ts";
+import { WebStoreError } from "./error.ts";
 
-const MissingEnvironmentErrorMessage = "Missing required environment variables";
-
-const getAccessTokenRequestBody = (): AccessTokenRequestBody => {
+const loadEnv = () => {
   const clientId = Deno.env.get("CLIENT_ID");
   const clientSecret = Deno.env.get("CLIENT_SECRET");
   const refreshToken = Deno.env.get("REFRESH_TOKEN");
+  const extensionId = Deno.env.get("EXTENSION_ID");
+  const filePath = Deno.env.get("FILE_PATH");
+  const shouldPublish = Deno.env.get("PUBLISH");
 
-  if (!clientId || !clientSecret || !refreshToken) {
-    throw new Error(MissingEnvironmentErrorMessage);
+  if (
+    !clientId || !clientSecret || !refreshToken || !extensionId ||
+    !filePath || !shouldPublish
+  ) {
+    throw new Error("Missing required environment variables");
   }
 
   return {
     clientId,
     clientSecret,
     refreshToken,
-    grant_type: "refresh_token",
+    extensionId: extensionId as ExtensionId,
+    filePath,
+    shouldPublish,
   };
 };
 
-const getExtensionId = (): ExtensionId => {
-  const extensionId = Deno.env.get("EXTENSION_ID");
-
-  if (!extensionId) {
-    throw new Error(MissingEnvironmentErrorMessage);
-  }
-
-  return extensionId as ExtensionId;
-};
-
-const getFilePath = (): string => {
-  const filePath = Deno.env.get("FILE_PATH");
-
-  if (!filePath) {
-    throw new Error(MissingEnvironmentErrorMessage);
-  }
-
-  return filePath;
-};
-
-const getShouldPublish = (): boolean => {
-  const shouldPublish = Deno.env.get("PUBLISH");
-
-  if (!shouldPublish) {
-    throw new Error(MissingEnvironmentErrorMessage);
-  }
-
-  return shouldPublish === "true" ? true : false;
-};
-
 const main = async () => {
-  const requestBody = getAccessTokenRequestBody();
-
   try {
-    const accessToken = await getAccessToken(requestBody);
-    const extensionId = getExtensionId();
-    const filePath = getFilePath();
-    const shouldPublish = getShouldPublish();
+    const env = loadEnv();
 
-    core.info("Uploading package...");
-    await uploadPackage(accessToken, extensionId, filePath);
-    core.info("Package uploaded successfully!");
+    const { access_token: accessToken } = await requestAccessToken(
+      env.clientId,
+      env.clientSecret,
+      env.refreshToken,
+    );
 
-    if (!shouldPublish) {
-      core.info("Skipping publication as --publish flag was not provided.");
+    await uploadPackage(accessToken, env.extensionId, env.filePath);
+
+    if (!env.shouldPublish) {
       return;
     }
 
-    core.info("Publishing...");
-    await publish(accessToken, extensionId);
-    core.info("Published successfully!");
-  } catch (error) {
+    await publish(accessToken, env.extensionId);
+  } catch (error: unknown) {
     if (error instanceof WebStoreError) {
       core.setFailed(
-        `Unexpected error during deployment: ${error.message}. Code: ${error.code}. Details: ${
+        `${error.message}: Code: ${error.code}. Details: ${
           JSON.stringify(error.details)
         }`,
       );

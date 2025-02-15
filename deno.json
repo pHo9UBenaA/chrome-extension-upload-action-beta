@@ -1,4 +1,5 @@
 {
+  "version": "0.1.0",
   "tasks": {
     "action": "deno run -A src/index.ts",
     "format": "deno fmt",

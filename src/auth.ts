@@ -1,32 +1,47 @@
-import { GaxiosError, request } from "npm:gaxios";
-import { WebStoreError } from "./errors.ts";
-import type {
-  AccessTokenRequestBody,
-  AccessTokenResponse,
-} from "./interfaces.ts";
+import { GaxiosOptions, request } from "npm:gaxios";
 
-export const getAccessToken = async (
-  body: AccessTokenRequestBody,
+import type { AccessTokenResponse } from "./interfaces.ts";
+import { WebStoreError } from "./error.ts";
+
+const TokenURI = "https://accounts.google.com/o/oauth2/token";
+
+const buildOptions = (
+  clientId: string,
+  clientSecret: string,
+  refreshToken: string,
+): GaxiosOptions => {
+  const data = new URLSearchParams({
+    clientId,
+    clientSecret,
+    refreshToken,
+    grant_type: "refresh_token",
+  }).toString();
+
+  return {
+    url: TokenURI,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    data,
+  };
+};
+
+export const requestAccessToken = async (
+  clientId: string,
+  clientSecret: string,
+  refreshToken: string,
 ): Promise<AccessTokenResponse> => {
-  try {
-    const response = await request<AccessTokenResponse>({
-      url: "https://accounts.google.com/o/oauth2/token",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      data: new URLSearchParams({ ...body }).toString(),
-    });
+  const options = buildOptions(clientId, clientSecret, refreshToken);
+  const response = await request<AccessTokenResponse>(options);
 
+  if (response.status === 200) {
     return response.data;
-  } catch (error) {
-    if (error instanceof GaxiosError) {
-      throw new WebStoreError(
-        "Failed to get access token",
-        error.response?.status || 500,
-        error.response?.data,
-      );
-    }
-    throw error;
   }
+
+  throw new WebStoreError(
+    "Failed to get access token",
+    response.status,
+    response.data,
+  );
 };

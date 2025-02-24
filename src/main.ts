@@ -13,7 +13,7 @@ const loadEnv = () => {
   const refreshToken = Deno.env.get("REFRESH_TOKEN");
   const extensionId = Deno.env.get("EXTENSION_ID");
   const filePath = Deno.env.get("FILE_PATH");
-  const shouldPublish = Deno.env.get("PUBLISH");
+  const shouldPublish = Deno.env.get("PUBLISH") === "true";
 
   if (
     !clientId || !clientSecret || !refreshToken || !extensionId ||

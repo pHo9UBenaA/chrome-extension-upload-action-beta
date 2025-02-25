@@ -2,7 +2,7 @@ import "jsr:@std/dotenv/load";
 import * as core from "npm:@actions/core";
 
 import { requestAccessToken } from "./auth.ts";
-import { publish } from "./publish.ts";
+import { publishPackage } from "./publish.ts";
 import type { ExtensionId } from "./types.ts";
 import { uploadPackage } from "./upload.ts";
 import { WebStoreError } from "./error.ts";
@@ -48,7 +48,7 @@ const main = async () => {
       return;
     }
 
-    await publish(accessToken, env.extensionId);
+    await publishPackage(accessToken, env.extensionId);
   } catch (error: unknown) {
     if (error instanceof WebStoreError) {
       core.setFailed(

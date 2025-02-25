@@ -23,7 +23,7 @@ const buildOptions = (
   };
 };
 
-export const publish = async (
+export const publishPackage = async (
   accessToken: string,
   extensionId: ExtensionId,
 ): Promise<void> => {

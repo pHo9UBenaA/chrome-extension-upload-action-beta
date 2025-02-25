@@ -1,6 +1,7 @@
 # Chrome Extension Upload Action
 
-This GitHub Action deploys Chrome extensions easily and quickly. The workflow uses only a few dependencies.
+This GitHub Action deploys Chrome extensions easily and quickly. The workflow
+uses only a few dependencies.
 
 ## Features
 
@@ -15,7 +16,7 @@ This GitHub Action deploys Chrome extensions easily and quickly. The workflow us
 | `client-secret` | Yes      | Google API client secret.                                                               |
 | `refresh-token` | Yes      | Google API refresh token.                                                               |
 | `extension-id`  | Yes      | The Chrome Web Store extension ID.                                                      |
-| `file-path`     | Yes      | Path to the ZIP file to be uploaded, e.g., `./dist/extension.zip`.                        |
+| `file-path`     | Yes      | Path to the ZIP file to be uploaded, e.g., `./dist/extension.zip`.                      |
 | `publish`       | No       | Set to `true` to automatically publish the extension after upload. Defaults to `false`. |
 
 ## Usage
@@ -44,7 +45,7 @@ jobs:
         with:
           node-version: 20
           check-latest: true
-          cache: 'pnpm'
+          cache: "pnpm"
       - name: Build
         run: |
           pnpm install

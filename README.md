@@ -1,11 +1,9 @@
 # Chrome Extension Upload Action
 
-This GitHub Action automates the process of uploading and publishing browser
-extensions to the Chrome Web Store.
+This GitHub Action deploys Chrome extensions easily and quickly. The workflow uses only a few dependencies.
 
 ## Features
 
-- Lightweight Design: Uses minimal dependencies for easy setup.
 - Upload extensions to the Chrome Web Store.
 - Optional automatic publishing of extensions.
 
@@ -13,11 +11,11 @@ extensions to the Chrome Web Store.
 
 | Name            | Required | Description                                                                             |
 | --------------- | -------- | --------------------------------------------------------------------------------------- |
-| `file-path`     | Yes      | Path to the ZIP file to be uploaded, e.g., `dist/extension.zip`.                        |
-| `extension-id`  | Yes      | The Chrome Web Store extension ID.                                                      |
 | `client-id`     | Yes      | Google API client ID.                                                                   |
 | `client-secret` | Yes      | Google API client secret.                                                               |
 | `refresh-token` | Yes      | Google API refresh token.                                                               |
+| `extension-id`  | Yes      | The Chrome Web Store extension ID.                                                      |
+| `file-path`     | Yes      | Path to the ZIP file to be uploaded, e.g., `./dist/extension.zip`.                        |
 | `publish`       | No       | Set to `true` to automatically publish the extension after upload. Defaults to `false`. |
 
 ## Usage
@@ -41,29 +39,26 @@ jobs:
     name: Publish webextension
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          check-latest: true
+          cache: 'pnpm'
       - name: Build
         run: |
-          npm ci
-          npm run build
-      - name: Upload
-        uses: mnao305/chrome-extension-upload@v5.0.0
+          pnpm install
+          pnpm run build
+      - name: Upload Chrome Extension
+        uses: pHo9UBenaA/chrome-extension-upload-action@master
         with:
-          file-path: dist/extension.zip
-          extension-id: ${{ secrets.EXTENSION_ID }}
           client-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           refresh-token: ${{ secrets.REFRESH_TOKEN }}
+          extension-id: "fijodggmkbkjcmlpkpahjpepngppdppb"
+          file-path: "./dist/extension.zip"
+          publish: "false"
 ```
-
-## Key Feature: Minimal Dependencies
-
-This action uses minimal dependencies, making workflows lightweight and
-efficient. It enables quick setup without impacting other parts of your project
-while simplifying the deployment of extensions to the Chrome Web Store.
 
 ## How to Obtain Google API Credentials
 

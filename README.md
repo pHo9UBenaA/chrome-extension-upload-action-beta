@@ -63,8 +63,8 @@ jobs:
 
 ## How to Obtain Google API Credentials
 
-Refer to the guide below to obtain your `client-id`, `client-secret`,
-and `refresh-token`:
+Refer to the guide below to obtain your `client-id`, `client-secret`, and
+`refresh-token`:
 
 - [How to generate Google API keys](https://github.com/fregante/chrome-webstore-upload-keys)
 - [Get Started with the Chrome Web Store API](https://developer.chrome.com/docs/webstore/using_webstore_api/)

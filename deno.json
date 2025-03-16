@@ -5,7 +5,7 @@
     "format": "deno fmt",
     "lint": "deno lint",
     "check": "deno check .",
-    "executer": "deno --no-lock -A"
+    "up:latest": "deno outdated --update --latest"
   },
   "imports": {
     "@actions/core": "npm:@actions/core@^1.11.1",

@@ -17,7 +17,7 @@ const loadEnv = () => {
 
   if (
     !clientId || !clientSecret || !refreshToken || !extensionId ||
-    !filePath || !shouldPublish
+    !filePath || shouldPublish === undefined
   ) {
     throw new Error("Missing required environment variables");
   }
@@ -52,15 +52,15 @@ const main = async () => {
   } catch (error: unknown) {
     if (error instanceof WebStoreError) {
       core.setFailed(
-        `${error.message}: Code: ${error.code}. Details: ${
-          JSON.stringify(error.details)
-        }`,
+        `${error.message}: Code: ${error.code}. Details: ${error.details}`,
       );
       return;
     }
 
+    console.log(error);
+
     core.setFailed(
-      `Unexpected error during deployment: ${JSON.stringify(error)}`,
+      `Unexpected error during deployment: ${error}`,
     );
   }
 };

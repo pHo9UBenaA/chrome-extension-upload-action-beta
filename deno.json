@@ -1,10 +1,11 @@
 {
   "version": "0.2.1",
   "tasks": {
-    "action": "deno run -A src/index.ts",
+    "action": "deno run -A src/main.ts",
     "format": "deno fmt",
     "lint": "deno lint",
-    "executer": "deno --no-lock -A"
+    "check": "deno check .",
+    "up:latest": "deno outdated --update --latest"
   },
   "imports": {
     "@actions/core": "npm:@actions/core@^1.11.1",

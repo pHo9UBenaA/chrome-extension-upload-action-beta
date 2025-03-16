@@ -1,9 +1,10 @@
 {
   "version": "0.2.1",
   "tasks": {
-    "action": "deno run -A src/index.ts",
+    "action": "deno run -A src/main.ts",
     "format": "deno fmt",
     "lint": "deno lint",
+    "check": "deno check .",
     "executer": "deno --no-lock -A"
   },
   "imports": {

@@ -5,7 +5,8 @@
     "format": "deno fmt",
     "lint": "deno lint",
     "check": "deno check .",
-    "up:latest": "deno outdated --update --latest"
+    "up:latest": "deno outdated --update --latest",
+    "zip:dummy-extension": "zip -r dummy-extension.zip dummy-extension -x \"*.DS_Store\""
   },
   "imports": {
     "@actions/core": "npm:@actions/core@^1.11.1",

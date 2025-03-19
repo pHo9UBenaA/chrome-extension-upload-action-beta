@@ -51,7 +51,8 @@ const main = async () => {
     await publishPackage(accessToken, env.extensionId);
   } catch (error: unknown) {
     if (error instanceof WebStoreError) {
-      const errorMessageBase = `${error.message}: Code: ${error.code}. Details:`;
+      const errorMessageBase =
+        `${error.message}: Code: ${error.code}. Details:`;
 
       typeof error.details === "object"
         ? core.setFailed(`${errorMessageBase} ${JSON.stringify(error.details)}`)

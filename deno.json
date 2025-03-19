@@ -1,7 +1,7 @@
 {
   "version": "0.2.1",
   "tasks": {
-    "action": "deno run -A src/main.ts",
+    "action": "deno run --allow-read=. --allow-env=CLIENT_ID,CLIENT_SECRET,REFRESH_TOKEN,EXTENSION_ID,FILE_PATH,PUBLISH --allow-net=accounts.google.com:443,www.googleapis.com:443 src/main.ts",
     "format": "deno fmt",
     "lint": "deno lint",
     "check": "deno check .",

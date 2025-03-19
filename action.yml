@@ -39,7 +39,8 @@ runs:
 
     - name: Run Deno Script
       run: |
-        deno run -A ${{ github.action_path }}/src/main.ts
+
+        deno run --allow-read=. --allow-env=CLIENT_ID,CLIENT_SECRET,REFRESH_TOKEN,EXTENSION_ID,FILE_PATH,PUBLISH --allow-net=accounts.google.com:443,www.googleapis.com:443 ${{ github.action_path }}/src/main.ts
       env:
         CLIENT_ID: ${{ inputs.client-id }}
         CLIENT_SECRET: ${{ inputs.client-secret }}

@@ -51,17 +51,20 @@ const main = async () => {
     await publishPackage(accessToken, env.extensionId);
   } catch (error: unknown) {
     if (error instanceof WebStoreError) {
-      core.setFailed(
-        `${error.message}: Code: ${error.code}. Details: ${error.details}`,
-      );
+      const errorMessageBase = `${error.message}: Code: ${error.code}. Details:`;
+
+      typeof error.details === "object"
+        ? core.setFailed(`${errorMessageBase} ${JSON.stringify(error.details)}`)
+        : core.setFailed(`${errorMessageBase} ${error.details}`);
+
       return;
     }
 
-    console.log(error);
+    const errorMessageBase = "Unexpected error during deployment";
 
-    core.setFailed(
-      `Unexpected error during deployment: ${error}`,
-    );
+    typeof error === "object"
+      ? core.setFailed(`${errorMessageBase}: ${JSON.stringify(error)}`)
+      : core.setFailed(`${errorMessageBase}: ${error}`);
   }
 };
 

@@ -89,7 +89,7 @@ In the `.env` file, assign your extension's ID to the `EXTENSION_ID` variable.
 
 4. **Prepare your Chrome extension ZIP file:**
 
-Ensure your extension is zipped and place it at `./dist/extension.zip`.
+Ensure your extension is zipped and place it at `./dummy-extension.zip`.
 
 5. **Run the deployment script:**
 

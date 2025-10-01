@@ -1,10 +1,12 @@
 /// <reference lib="deno.ns" />
 
-import { GaxiosOptions, request } from "npm:gaxios";
+import { GaxiosError, GaxiosOptions } from "npm:gaxios";
 
 import type { UploadResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";
 import { WebStoreError } from "./error.ts";
+import { validateFilePath } from "./validation.ts";
+import { requestWithRetry } from "./network.ts";
 
 const uploadURI = (extensionId: ExtensionId) => {
   return `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${extensionId}`;
@@ -15,7 +17,13 @@ const buildOptions = async (
   extensionId: ExtensionId,
   zipFilePath: string,
 ): Promise<GaxiosOptions> => {
-  const zipFile = await Deno.readFile(zipFilePath);
+  // Validate file path before reading
+  const validationResult = await validateFilePath(zipFilePath);
+  if (!validationResult.ok) {
+    throw new Error(`File validation failed: ${validationResult.error}`);
+  }
+
+  const zipFile = await Deno.readFile(validationResult.data);
 
   const options: GaxiosOptions = {
     url: uploadURI(extensionId),
@@ -37,15 +45,39 @@ export const uploadPackage = async (
   zipFilePath: string,
 ): Promise<void> => {
   const options = await buildOptions(accessToken, extensionId, zipFilePath);
-  const response = await request<UploadResponse>(options);
 
-  if (response.data.uploadState === "SUCCESS") {
-    return;
+  try {
+    const data = await requestWithRetry<UploadResponse>(options, {
+      maxRetries: 3,
+    });
+
+    if (data.uploadState === "SUCCESS") {
+      return;
+    }
+
+    throw new WebStoreError(
+      "Failed to upload package",
+      400,
+      data,
+    );
+  } catch (error) {
+    if (error instanceof WebStoreError) {
+      throw error;
+    }
+
+    const status = error instanceof GaxiosError
+      ? error.response?.status
+      : undefined;
+    const data = error instanceof GaxiosError
+      ? error.response?.data
+      : error instanceof Error
+      ? error.message
+      : "Unknown error";
+
+    throw new WebStoreError(
+      "Failed to upload package",
+      status || 0,
+      data,
+    );
   }
-
-  throw new WebStoreError(
-    "Failed to upload package",
-    response.status,
-    response.data,
-  );
 };

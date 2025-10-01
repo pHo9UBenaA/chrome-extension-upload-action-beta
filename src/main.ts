@@ -6,8 +6,14 @@ import { publishPackage } from "./publish.ts";
 import type { ExtensionId } from "./types.ts";
 import { uploadPackage } from "./upload.ts";
 import { WebStoreError } from "./error.ts";
+import { formatSecureErrorMessage } from "./security.ts";
+import {
+  validateExtensionId,
+  validateFilePath,
+  validateOAuthCredentials,
+} from "./validation.ts";
 
-const loadEnv = () => {
+const loadEnv = async () => {
   const clientId = Deno.env.get("CLIENT_ID");
   const clientSecret = Deno.env.get("CLIENT_SECRET");
   const refreshToken = Deno.env.get("REFRESH_TOKEN");
@@ -22,19 +28,41 @@ const loadEnv = () => {
     throw new Error("Missing required environment variables");
   }
 
-  return {
+  // Validate OAuth credentials
+  const credentialsResult = validateOAuthCredentials(
     clientId,
     clientSecret,
     refreshToken,
-    extensionId: extensionId as ExtensionId,
-    filePath,
+  );
+  if (!credentialsResult.ok) {
+    throw new Error(`Invalid credentials: ${credentialsResult.error}`);
+  }
+
+  // Validate extension ID
+  const extensionIdResult = validateExtensionId(extensionId);
+  if (!extensionIdResult.ok) {
+    throw new Error(`Invalid extension ID: ${extensionIdResult.error}`);
+  }
+
+  // Validate file path
+  const filePathResult = await validateFilePath(filePath);
+  if (!filePathResult.ok) {
+    throw new Error(`Invalid file path: ${filePathResult.error}`);
+  }
+
+  return {
+    clientId: credentialsResult.data.clientId,
+    clientSecret: credentialsResult.data.clientSecret,
+    refreshToken: credentialsResult.data.refreshToken,
+    extensionId: extensionIdResult.data as ExtensionId,
+    filePath: filePathResult.data,
     shouldPublish,
   };
 };
 
 const main = async () => {
   try {
-    const env = loadEnv();
+    const env = await loadEnv();
 
     const { access_token: accessToken } = await requestAccessToken(
       env.clientId,
@@ -51,21 +79,21 @@ const main = async () => {
     await publishPackage(accessToken, env.extensionId);
   } catch (error: unknown) {
     if (error instanceof WebStoreError) {
-      const errorMessageBase =
-        `${error.message}: Code: ${error.code}. Details:`;
-
-      typeof error.details === "object"
-        ? core.setFailed(`${errorMessageBase} ${JSON.stringify(error.details)}`)
-        : core.setFailed(`${errorMessageBase} ${error.details}`);
-
+      const secureMessage = formatSecureErrorMessage(
+        error.message,
+        error.code,
+        error.details,
+      );
+      core.setFailed(secureMessage);
       return;
     }
 
-    const errorMessageBase = "Unexpected error during deployment";
+    if (error instanceof Error) {
+      core.setFailed(`Deployment failed: ${error.message}`);
+      return;
+    }
 
-    typeof error === "object"
-      ? core.setFailed(`${errorMessageBase}: ${JSON.stringify(error)}`)
-      : core.setFailed(`${errorMessageBase}: ${error}`);
+    core.setFailed("Unexpected error during deployment");
   }
 };
 

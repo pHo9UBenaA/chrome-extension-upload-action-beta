@@ -1,6 +1,6 @@
 /// <reference lib="deno.ns" />
 
-import { GaxiosOptions, request } from "npm:gaxios";
+import { GaxiosOptions, request } from "gaxios";
 
 import type { UploadResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";

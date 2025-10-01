@@ -1,4 +1,4 @@
-import { GaxiosOptions, request } from "npm:gaxios";
+import { GaxiosOptions, request } from "gaxios";
 
 import type { AccessTokenResponse } from "./interfaces.ts";
 import { WebStoreError } from "./error.ts";

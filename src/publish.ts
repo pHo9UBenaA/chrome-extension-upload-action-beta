@@ -1,4 +1,4 @@
-import { GaxiosOptions, request } from "npm:gaxios";
+import { GaxiosOptions, request } from "gaxios";
 
 import type { PublishResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";

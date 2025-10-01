@@ -1,33 +1,29 @@
 # Chrome Extension Upload Action
 
-This GitHub Action deploys Chrome extensions easily and quickly. The workflow
-uses only a few dependencies.
+GitHub Action for uploading Chrome extensions to the Chrome Web Store with minimal dependencies.
 
 ## Features
 
-- Upload extensions to the Chrome Web Store.
-- Optional automatic publishing of extensions.
+- Upload extensions to Chrome Web Store
+- Optional automatic publishing after upload
 
-## Required Inputs
+## Inputs
 
-| Name            | Required | Description                                                                             |
-| --------------- | -------- | --------------------------------------------------------------------------------------- |
-| `client-id`     | Yes      | Google API client ID.                                                                   |
-| `client-secret` | Yes      | Google API client secret.                                                               |
-| `refresh-token` | Yes      | Google API refresh token.                                                               |
-| `extension-id`  | Yes      | The Chrome Web Store extension ID.                                                      |
-| `file-path`     | Yes      | Path to the ZIP file to be uploaded, e.g., `./dist/extension.zip`.                      |
-| `publish`       | No       | Set to `true` to automatically publish the extension after upload. Defaults to `false`. |
+| Name            | Required | Description                                                     |
+| --------------- | -------- | --------------------------------------------------------------- |
+| `client-id`     | Yes      | Google OAuth 2.0 client ID                                     |
+| `client-secret` | Yes      | Google OAuth 2.0 client secret                                 |
+| `refresh-token` | Yes      | Google OAuth 2.0 refresh token                                 |
+| `extension-id`  | Yes      | Chrome Web Store extension ID                                  |
+| `file-path`     | Yes      | Path to the extension ZIP file (e.g., `./dist/extension.zip`)  |
+| `publish`       | No       | Publish immediately after upload. Default: `false`             |
 
 ## Usage
 
-### Simple Example
-
-The following workflow builds and uploads an extension to the Chrome Web Store
-when a tag is pushed (without publishing it).
+Upload extension when pushing to master branch:
 
 ```yaml
-name: Upload Chrome extension
+name: Upload Chrome Extension
 
 on:
   push:
@@ -43,8 +39,8 @@ jobs:
       - run: corepack enable
       - uses: oven-sh/setup-bun@v1
 
-      - run: bun install
-      - run: bun run zip
+      - run: deno install
+      - run: deno task zip
 
       - name: Upload Chrome Extension
         uses: pHo9UBenaA/chrome-extension-upload-action@master
@@ -57,46 +53,33 @@ jobs:
           publish: "false"
 ```
 
-### How to Obtain Google API Credentials
+## Obtaining Google API Credentials
 
-Refer to the official guide below to obtain your `client-id`, `client-secret`,
-and `refresh-token`:
+To get `client-id`, `client-secret`, and `refresh-token`:
 
-- [Get Started with the Chrome Web Store API](https://developer.chrome.com/docs/webstore/using_webstore_api/)
-
-For an unofficial alternative guide, you can also refer to:
-
-- [How to generate Google API keys](https://github.com/fregante/chrome-webstore-upload-keys)
-  (Not an official source)
+1. Official Guide: [Chrome Web Store API Documentation](https://developer.chrome.com/docs/webstore/using_webstore_api/)
+2. Alternative Guide: [chrome-webstore-upload-keys](https://github.com/fregante/chrome-webstore-upload-keys)
 
 ## Development
 
-1. **Copy the `.env.example` file to create a new `.env` file:**
+1. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
 
-```bash
-cp .env.example .env
-```
+2. Configure `.env` with your credentials:
+   - `CLIENT_ID`: Google OAuth client ID
+   - `CLIENT_SECRET`: Google OAuth client secret
+   - `REFRESH_TOKEN`: Google OAuth refresh token
+   - `EXTENSION_ID`: Chrome Web Store extension ID
 
-2. **Obtain and set your Google API credentials:**
+3. Place test extension at `./dummy-extension.zip`
 
-Open the `.env` file and input your `CLIENT_ID`, `CLIENT_SECRET`, and
-`REFRESH_TOKEN`. If you haven't obtained these credentials yet, refer to the
-`How to Obtain Google API Credentials` guide for instructions.
-
-3. **Set your Chrome Web Store Extension ID:**
-
-In the `.env` file, assign your extension's ID to the `EXTENSION_ID` variable.
-
-4. **Prepare your Chrome extension ZIP file:**
-
-Ensure your extension is zipped and place it at `./dummy-extension.zip`.
-
-5. **Run the deployment script:**
-
-```bash
-deno task action
-```
+4. Run the action:
+   ```bash
+   deno task action
+   ```
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+[MIT License](LICENSE)

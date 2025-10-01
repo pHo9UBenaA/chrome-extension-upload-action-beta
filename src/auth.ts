@@ -1,8 +1,7 @@
-import { GaxiosError, GaxiosOptions } from "npm:gaxios";
+import { GaxiosOptions, request } from "npm:gaxios";
 
 import type { AccessTokenResponse } from "./interfaces.ts";
 import { WebStoreError } from "./error.ts";
-import { requestWithRetry } from "./network.ts";
 
 const TokenURI = "https://accounts.google.com/o/oauth2/token";
 
@@ -34,26 +33,15 @@ export const requestAccessToken = async (
   refreshToken: string,
 ): Promise<AccessTokenResponse> => {
   const options = buildOptions(clientId, clientSecret, refreshToken);
+  const response = await request<AccessTokenResponse>(options);
 
-  try {
-    const data = await requestWithRetry<AccessTokenResponse>(options, {
-      maxRetries: 2, // Fewer retries for auth requests
-    });
-    return data;
-  } catch (error) {
-    const status = error instanceof GaxiosError
-      ? error.response?.status
-      : undefined;
-    const data = error instanceof GaxiosError
-      ? error.response?.data
-      : error instanceof Error
-      ? error.message
-      : "Unknown error";
-
-    throw new WebStoreError(
-      "Failed to get access token",
-      status || 0,
-      data,
-    );
+  if (response.status === 200) {
+    return response.data;
   }
+
+  throw new WebStoreError(
+    "Failed to get access token",
+    response.status,
+    response.data,
+  );
 };

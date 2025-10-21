@@ -1,4 +1,4 @@
-import { GaxiosOptions, request } from "npm:gaxios";
+import { GaxiosOptions, request } from "gaxios";
 
 import type { AccessTokenResponse } from "./interfaces.ts";
 import { WebStoreError } from "./error.ts";
@@ -11,9 +11,9 @@ const buildOptions = (
   refreshToken: string,
 ): GaxiosOptions => {
   const data = new URLSearchParams({
-    clientId,
-    clientSecret,
-    refreshToken,
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: refreshToken,
     grant_type: "refresh_token",
   }).toString();
 

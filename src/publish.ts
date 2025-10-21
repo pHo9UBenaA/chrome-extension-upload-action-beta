@@ -1,4 +1,4 @@
-import { GaxiosOptions, request } from "npm:gaxios";
+import { GaxiosOptions, request } from "gaxios";
 
 import type { PublishResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";
@@ -30,7 +30,13 @@ export const publishPackage = async (
   const options = buildOptions(accessToken, extensionId);
   const response = await request<PublishResponse>(options);
 
-  if (response.data.status.includes("OK")) {
+  // Check for successful status values
+  const successStatuses = ["OK", "ITEM_PENDING_REVIEW"];
+  const hasSuccessStatus = response.data.status.some((status) =>
+    successStatuses.includes(status)
+  );
+
+  if (hasSuccessStatus) {
     return;
   }
 

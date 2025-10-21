@@ -16,7 +16,7 @@ inputs:
     required: true
     type: string
   extension-id:
-    description: The ID of your Chrome extension.
+    description: The ID of your Chrome extension (32 lowercase letters).
     required: true
     type: string
   file-path:
@@ -24,7 +24,7 @@ inputs:
     required: true
     type: string
   publish:
-    description: Whether to publish the extension immediately.
+    description: Set to `true` to publish the extension immediately after upload.
     required: false
     default: false
     type: string
@@ -39,7 +39,7 @@ runs:
 
     - name: Run Deno Script
       run: |
-        deno run --allow-read=. --allow-env=CLIENT_ID,CLIENT_SECRET,REFRESH_TOKEN,EXTENSION_ID,FILE_PATH,PUBLISH --allow-net ${{ github.action_path }}/src/main.ts
+        deno run --allow-read=. --allow-env --allow-net ${{ github.action_path }}/src/main.ts
       env:
         CLIENT_ID: ${{ inputs.client-id }}
         CLIENT_SECRET: ${{ inputs.client-secret }}

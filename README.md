@@ -7,6 +7,7 @@ minimal dependencies.
 
 - Upload extensions to Chrome Web Store
 - Optional automatic publishing after upload
+- Outputs item ID and upload state for downstream steps
 
 ## Inputs
 
@@ -18,6 +19,13 @@ minimal dependencies.
 | `extension-id`  | Yes      | Chrome Web Store extension ID                                 |
 | `file-path`     | Yes      | Path to the extension ZIP file (e.g., `./dist/extension.zip`) |
 | `publish`       | No       | Publish immediately after upload. Default: `false`            |
+
+## Outputs
+
+| Name           | Description                                  |
+| -------------- | -------------------------------------------- |
+| `item-id`      | Chrome Web Store item ID                     |
+| `upload-state` | Upload state (`SUCCESS`, `FAILURE`, etc.)    |
 
 ## Usage
 
@@ -37,21 +45,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: oven-sh/setup-bun@v1
 
-      - run: deno install
-      - run: deno task zip
+      - name: Build extension
+        run: |
+          # Your build commands here
+          zip -r extension.zip src/
 
       - name: Upload Chrome Extension
-        uses: pHo9UBenaA/chrome-extension-upload-action@master
+        id: upload
+        uses: pHo9UBenaA/chrome-extension-upload-action@v0.3.0
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
           refresh-token: ${{ secrets.REFRESH_TOKEN }}
-          extension-id: "fijodggmkbkjcmlpkpahjpepngppdppb"
-          file-path: "./dist.zip"
+          extension-id: "your-extension-id-here"
+          file-path: "./extension.zip"
           publish: "false"
+
+      - name: Show upload result
+        run: |
+          echo "Item ID: ${{ steps.upload.outputs.item-id }}"
+          echo "State: ${{ steps.upload.outputs.upload-state }}"
 ```
 
 ## Obtaining Google API Credentials

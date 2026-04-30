@@ -2,22 +2,9 @@ import * as core from "@actions/core";
 
 import { requestAccessToken } from "./auth.ts";
 import { publishPackage } from "./publish.ts";
-import type { ExtensionId } from "./types.ts";
 import { uploadPackage } from "./upload.ts";
 import { WebStoreError } from "./error.ts";
-
-/**
- * Validates Chrome extension ID format
- */
-const validateExtensionId = (id: string): ExtensionId => {
-  const trimmed = id.trim();
-  if (!/^[a-z]{32}$/.test(trimmed)) {
-    throw new Error(
-      "Invalid extension ID format. Must be 32 lowercase letters.",
-    );
-  }
-  return trimmed as ExtensionId;
-};
+import { validateExtensionId } from "./validation.ts";
 
 /**
  * Loads and validates environment variables

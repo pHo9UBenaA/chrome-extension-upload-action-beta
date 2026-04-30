@@ -1,3 +1,5 @@
+import { resolve } from "jsr:@std/path";
+
 import type { ExtensionId } from "./types.ts";
 
 /**
@@ -11,4 +13,21 @@ export const validateExtensionId = (id: string): ExtensionId => {
     );
   }
   return trimmed as ExtensionId;
+};
+
+/**
+ * Validates file path is within workspace and is a .zip file
+ */
+export const validateFilePath = (filePath: string, cwd: string): string => {
+  const resolved = resolve(cwd, filePath);
+
+  if (!resolved.startsWith(cwd)) {
+    throw new Error("File path must be within workspace");
+  }
+
+  if (!resolved.endsWith(".zip")) {
+    throw new Error("File must be a .zip file");
+  }
+
+  return resolved;
 };

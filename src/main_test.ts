@@ -2,7 +2,7 @@
 
 import { assertEquals, assertThrows } from "jsr:@std/assert";
 
-import { validateExtensionId } from "./validation.ts";
+import { validateExtensionId, validateFilePath } from "./validation.ts";
 import { WebStoreError } from "./error.ts";
 
 // validateExtensionId tests
@@ -73,4 +73,45 @@ Deno.test("WebStoreError - is instance of Error", () => {
   const error = new WebStoreError("Test", 500, null);
   assertEquals(error instanceof Error, true);
   assertEquals(error instanceof WebStoreError, true);
+});
+
+// validateFilePath tests
+
+Deno.test("validateFilePath - valid .zip file in workspace", () => {
+  const cwd = Deno.cwd();
+  const result = validateFilePath("./test.zip", cwd);
+  assertEquals(result.endsWith("test.zip"), true);
+});
+
+Deno.test("validateFilePath - valid nested .zip file", () => {
+  const cwd = Deno.cwd();
+  const result = validateFilePath("./dist/extension.zip", cwd);
+  assertEquals(result.endsWith("extension.zip"), true);
+});
+
+Deno.test("validateFilePath - invalid: not a .zip file", () => {
+  const cwd = Deno.cwd();
+  assertThrows(
+    () => validateFilePath("./test.tar.gz", cwd),
+    Error,
+    "File must be a .zip file",
+  );
+});
+
+Deno.test("validateFilePath - invalid: outside workspace", () => {
+  const cwd = Deno.cwd();
+  assertThrows(
+    () => validateFilePath("/etc/passwd", cwd),
+    Error,
+    "File path must be within workspace",
+  );
+});
+
+Deno.test("validateFilePath - invalid: path traversal attempt", () => {
+  const cwd = Deno.cwd();
+  assertThrows(
+    () => validateFilePath("../../../etc/passwd.zip", cwd),
+    Error,
+    "File path must be within workspace",
+  );
 });

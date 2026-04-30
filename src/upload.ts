@@ -5,6 +5,7 @@ import { GaxiosError, GaxiosOptions, request } from "gaxios";
 import type { UploadResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";
 import { WebStoreError } from "./error.ts";
+import { validateFilePath } from "./validation.ts";
 
 const uploadURI = (extensionId: ExtensionId) => {
   return `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${extensionId}`;
@@ -13,9 +14,9 @@ const uploadURI = (extensionId: ExtensionId) => {
 const buildOptions = async (
   accessToken: string,
   extensionId: ExtensionId,
-  zipFilePath: string,
+  validatedPath: string,
 ): Promise<GaxiosOptions> => {
-  const zipFile = await Deno.readFile(zipFilePath);
+  const zipFile = await Deno.readFile(validatedPath);
 
   const options: GaxiosOptions = {
     url: uploadURI(extensionId),
@@ -36,7 +37,9 @@ export const uploadPackage = async (
   extensionId: ExtensionId,
   zipFilePath: string,
 ): Promise<UploadResponse> => {
-  const options = await buildOptions(accessToken, extensionId, zipFilePath);
+  // Validate file path before processing
+  const validatedPath = validateFilePath(zipFilePath, Deno.cwd());
+  const options = await buildOptions(accessToken, extensionId, validatedPath);
 
   try {
     const response = await request<UploadResponse>(options);

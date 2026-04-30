@@ -29,6 +29,14 @@ inputs:
     default: false
     type: string
 
+outputs:
+  item-id:
+    description: "Chrome Web Store item ID"
+    value: ${{ steps.upload.outputs.item-id }}
+  upload-state:
+    description: "Upload state (SUCCESS, FAILURE, IN_PROGRESS)"
+    value: ${{ steps.upload.outputs.upload-state }}
+
 runs:
   using: composite
   steps:
@@ -38,6 +46,7 @@ runs:
         deno-version: v2
 
     - name: Run Deno Script
+      id: upload
       run: |
         deno run --allow-read=. --allow-env --allow-net=accounts.google.com:443,www.googleapis.com:443 ${{ github.action_path }}/src/main.ts
       env:
@@ -47,4 +56,5 @@ runs:
         EXTENSION_ID: ${{ inputs.extension-id }}
         FILE_PATH: ${{ inputs.file-path }}
         PUBLISH: ${{ inputs.publish }}
+        GITHUB_OUTPUT: ${{ github.output }}
       shell: bash

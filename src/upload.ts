@@ -35,12 +35,12 @@ export const uploadPackage = async (
   accessToken: string,
   extensionId: ExtensionId,
   zipFilePath: string,
-): Promise<void> => {
+): Promise<UploadResponse> => {
   const options = await buildOptions(accessToken, extensionId, zipFilePath);
   const response = await request<UploadResponse>(options);
 
   if (response.data.uploadState === "SUCCESS") {
-    return;
+    return response.data;
   }
 
   throw new WebStoreError(

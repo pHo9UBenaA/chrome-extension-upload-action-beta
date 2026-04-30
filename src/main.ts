@@ -53,8 +53,12 @@ const main = async () => {
     core.setSecret(accessToken);
 
     core.info(`Uploading extension ${env.extensionId}...`);
-    await uploadPackage(accessToken, env.extensionId, env.filePath);
+    const uploadResult = await uploadPackage(accessToken, env.extensionId, env.filePath);
     core.info("Upload successful");
+
+    // Set outputs for downstream steps
+    core.setOutput("item-id", uploadResult.item_id);
+    core.setOutput("upload-state", uploadResult.uploadState);
 
     if (!env.shouldPublish) {
       core.info("Skipping publish (publish=false)");

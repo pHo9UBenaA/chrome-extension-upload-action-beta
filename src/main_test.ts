@@ -1,6 +1,6 @@
 /// <reference lib="deno.ns" />
 
-import { assertEquals, assertThrows } from "jsr:@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 
 import { validateExtensionId, validateFilePath } from "./validation.ts";
 import { WebStoreError } from "./error.ts";

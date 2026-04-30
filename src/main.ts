@@ -53,7 +53,11 @@ const main = async () => {
     core.setSecret(accessToken);
 
     core.info(`Uploading extension ${env.extensionId}...`);
-    const uploadResult = await uploadPackage(accessToken, env.extensionId, env.filePath);
+    const uploadResult = await uploadPackage(
+      accessToken,
+      env.extensionId,
+      env.filePath,
+    );
     core.info("Upload successful");
 
     // Set outputs for downstream steps

@@ -1,4 +1,4 @@
-import { resolve } from "jsr:@std/path";
+import { resolve } from "@std/path";
 
 import type { ExtensionId } from "./types.ts";
 

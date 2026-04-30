@@ -2,8 +2,10 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/assert@*": "1.0.19",
+    "jsr:@std/assert@1": "1.0.19",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/path@*": "1.1.4",
+    "jsr:@std/path@1": "1.1.4",
     "npm:@actions/core@^1.11.1": "1.11.1",
     "npm:gaxios@^6.7.1": "6.7.1"
   },
@@ -106,6 +108,7 @@
     },
     "uuid@9.0.1": {
       "integrity": "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==",
+      "deprecated": true,
       "bin": true
     },
     "webidl-conversions@3.0.1": {
@@ -121,6 +124,8 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/assert@1",
+      "jsr:@std/path@1",
       "npm:@actions/core@^1.11.1",
       "npm:gaxios@^6.7.1"
     ]

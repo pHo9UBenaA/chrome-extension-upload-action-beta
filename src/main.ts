@@ -38,12 +38,19 @@ const main = async () => {
   try {
     const env = loadEnv();
 
+    // Mask sensitive values in logs
+    core.setSecret(env.clientSecret);
+    core.setSecret(env.refreshToken);
+
     core.info("Requesting access token...");
     const { access_token: accessToken } = await requestAccessToken(
       env.clientId,
       env.clientSecret,
       env.refreshToken,
     );
+
+    // Mask access token in logs
+    core.setSecret(accessToken);
 
     core.info(`Uploading extension ${env.extensionId}...`);
     await uploadPackage(accessToken, env.extensionId, env.filePath);

@@ -2,6 +2,10 @@ name: Chrome extension upload
 description: Uploads a Chrome extension to the Chrome Web Store.
 author: pHo9UBenaA
 
+branding:
+  icon: upload-cloud
+  color: blue
+
 inputs:
   client-id:
     description: Your Google Cloud Platform OAuth 2.0 client ID.

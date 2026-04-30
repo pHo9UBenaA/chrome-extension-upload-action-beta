@@ -67,6 +67,8 @@ const main = async () => {
   } catch (error: unknown) {
     if (error instanceof WebStoreError) {
       core.setFailed(`${error.message} (Code: ${error.code})`);
+      // Log details at debug level to avoid exposing sensitive info
+      core.debug(`Error details: ${JSON.stringify(error.details)}`);
     } else if (error instanceof Error) {
       core.setFailed(error.message);
     } else {

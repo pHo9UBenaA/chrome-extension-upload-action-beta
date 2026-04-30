@@ -11,4 +11,4 @@ permissions:
 
 jobs:
   tag:
-    uses: pHo9UBenaA/gh-action-templates/.github/workflows/auto-tag-on-merge.yml@master
+    uses: pHo9UBenaA/gh-action-templates/.github/workflows/auto-tag-on-merge.yml@2f463d6d238d218fe2b74b5102b0205d607e4191

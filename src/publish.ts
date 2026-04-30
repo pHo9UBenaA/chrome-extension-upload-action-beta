@@ -1,4 +1,4 @@
-import { GaxiosOptions, request } from "gaxios";
+import { GaxiosError, GaxiosOptions, request } from "gaxios";
 
 import type { PublishResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";
@@ -28,21 +28,36 @@ export const publishPackage = async (
   extensionId: ExtensionId,
 ): Promise<void> => {
   const options = buildOptions(accessToken, extensionId);
-  const response = await request<PublishResponse>(options);
 
-  // Check for successful status values
-  const successStatuses = ["OK", "ITEM_PENDING_REVIEW"];
-  const hasSuccessStatus = response.data.status.some((status) =>
-    successStatuses.includes(status)
-  );
+  try {
+    const response = await request<PublishResponse>(options);
 
-  if (hasSuccessStatus) {
-    return;
+    // Check for successful status values
+    const successStatuses = ["OK", "ITEM_PENDING_REVIEW"];
+    const hasSuccessStatus = response.data.status.some((status) =>
+      successStatuses.includes(status)
+    );
+
+    if (hasSuccessStatus) {
+      return;
+    }
+
+    throw new WebStoreError(
+      "Failed to publish item",
+      response.status,
+      response.data,
+    );
+  } catch (error) {
+    if (error instanceof WebStoreError) {
+      throw error;
+    }
+    if (error instanceof GaxiosError) {
+      throw new WebStoreError(
+        `Network error: ${error.message}`,
+        error.response?.status ?? 0,
+        error.response?.data,
+      );
+    }
+    throw error;
   }
-
-  throw new WebStoreError(
-    "Failed to publish item",
-    response.status,
-    response.data,
-  );
 };

@@ -1,6 +1,6 @@
 /// <reference lib="deno.ns" />
 
-import { GaxiosOptions, request } from "gaxios";
+import { GaxiosError, GaxiosOptions, request } from "gaxios";
 
 import type { UploadResponse } from "./interfaces.ts";
 import type { ExtensionId } from "./types.ts";
@@ -37,15 +37,30 @@ export const uploadPackage = async (
   zipFilePath: string,
 ): Promise<UploadResponse> => {
   const options = await buildOptions(accessToken, extensionId, zipFilePath);
-  const response = await request<UploadResponse>(options);
 
-  if (response.data.uploadState === "SUCCESS") {
-    return response.data;
+  try {
+    const response = await request<UploadResponse>(options);
+
+    if (response.data.uploadState === "SUCCESS") {
+      return response.data;
+    }
+
+    throw new WebStoreError(
+      "Failed to upload package",
+      response.status,
+      response.data,
+    );
+  } catch (error) {
+    if (error instanceof WebStoreError) {
+      throw error;
+    }
+    if (error instanceof GaxiosError) {
+      throw new WebStoreError(
+        `Network error: ${error.message}`,
+        error.response?.status ?? 0,
+        error.response?.data,
+      );
+    }
+    throw error;
   }
-
-  throw new WebStoreError(
-    "Failed to upload package",
-    response.status,
-    response.data,
-  );
 };
